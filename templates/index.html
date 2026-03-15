@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GridWorld RL Visualization</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard">
+        <aside class="control-panel glass-panel">
+            <h2>GridWorld Dashboard</h2>
+            
+            <div class="control-group">
+                <label for="grid-size">Grid Dimension ($n$):</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="number" id="grid-size" min="5" max="9" value="5" style="width: 100%;">
+                    <button id="btn-resize" class="action-btn">Resize</button>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <h3>Painting Tools</h3>
+                <div class="tool-group">
+                    <button id="tool-start" class="tool-btn active" data-tool="start">Start State</button>
+                    <button id="tool-goal" class="tool-btn" data-tool="goal">Terminal Goal</button>
+                    <button id="tool-obstacle" class="tool-btn" data-tool="obstacle">Draw Obstacles</button>
+                </div>
+                <button id="btn-clear" class="action-btn secondary">Clear Geometry</button>
+            </div>
+            
+            <div class="control-group algorithms">
+                <h3>Dynamic Programming</h3>
+                <button id="btn-evaluate" class="action-btn primary">Evaluate Random Policy</button>
+                <button id="btn-optimize" class="action-btn primary highlight">Run Value Iteration</button>
+            </div>
+            
+            <div class="status-panel">
+                <p id="status-text">Status: Mathematical horizon mapped.</p>
+            </div>
+        </aside>
+        
+        <main class="grid-container-wrapper">
+            <div id="grid-container" class="grid-container glass-panel" style="--grid-size: 5;">
+                <!-- Mathematical grid cells injected via pure vanilla JavaScript -->
+            </div>
+        </main>
+    </div>
+    
+    <script src="/static/main.js"></script>
+</body>
+</html>
