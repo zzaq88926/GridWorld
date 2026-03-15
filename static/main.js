@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let gridSize = 5;
     let currentTool = 'start'; // Can be 'start', 'goal', or 'obstacle'
     let isDrawing = false;
-    
+
     // Internal JS State tracking Grid topology
     let startState = [0, 0];
     let goalState = [4, 4];
@@ -27,15 +27,15 @@ document.addEventListener('DOMContentLoaded', () => {
         let newSize = parseInt(inputGridSize.value);
         if (isNaN(newSize) || newSize < 5) newSize = 5;
         if (newSize > 9) newSize = 9;
-        
+
         inputGridSize.value = newSize;
         gridSize = newSize;
-        
+
         // Reset mathematical variables cleanly upon geometry shift
         startState = [0, 0];
         goalState = [newSize - 1, newSize - 1];
         obstacleStates.clear();
-        
+
         initGrid();
     });
 
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnClear.addEventListener('click', () => {
         obstacleStates.clear();
         initGrid();
-        updateStatus("Environment geometry purged.");
+        updateStatus("環境網格已清除。");
     });
 
     // --- Master Event Delegation for Frictionless Painting ---
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isDrawing) return;
         const cell = e.target.closest('.grid-cell');
         if (!cell) return;
-        
+
         // Only continuously "paint" density for obstacles to prevent glitching goals
         if (currentTool === 'obstacle') {
             applyTool(cell);
@@ -100,43 +100,43 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(payload)
             });
             const data = await res.json();
-            
+
             if (data.status === 'success') {
                 return true;
             } else {
-                updateStatus(`API Exception: ${data.error}`);
+                updateStatus(`API 異常: ${data.error}`);
                 return false;
             }
         } catch (err) {
-            updateStatus(`Network Latency/Error: ${err.message}`);
+            updateStatus(`網路延遲/錯誤: ${err.message}`);
             return false;
         }
     }
 
     btnEvaluate.addEventListener('click', async () => {
-        updateStatus("Initializing Markov architecture and projecting Random Policy...");
+        updateStatus("正在初始化馬可夫架構並評估隨機策略...");
         if (await syncEnvironment()) {
             try {
                 const res = await fetch('/api/evaluate');
                 const data = await res.json();
                 renderHeatmap(data.values);
-                updateStatus("Bellman Expectation Equation resolved. Chromatic heatmaps active.");
+                updateStatus("貝爾曼期望方程式求解完成。已生成熱力圖。");
             } catch (err) {
-                updateStatus(`Evaluation Failure: ${err.message}`);
+                updateStatus(`評估失敗: ${err.message}`);
             }
         }
     });
 
     btnOptimize.addEventListener('click', async () => {
-        updateStatus("Commencing Value Iteration across topological space...");
+        updateStatus("開始在拓樸空間中進行價值迭代 (Value Iteration)...");
         if (await syncEnvironment()) {
             try {
                 const res = await fetch('/api/optimize');
                 const data = await res.json();
                 renderHeatmap(data.values, data.policy); // Overlay the optimized policy
-                updateStatus("Bellman Optimality Achieved. Final mathematical limits mapped.");
+                updateStatus("已達到貝爾曼最佳化。最終最佳策略與價值已映射。");
             } catch (err) {
-                updateStatus(`Optimization Failure: ${err.message}`);
+                updateStatus(`最佳化失敗: ${err.message}`);
             }
         }
     });
@@ -146,14 +146,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // Inject explicit dimensional CSS property into global inline dict
         gridContainer.style.setProperty('--grid-size', gridSize);
         gridContainer.innerHTML = ''; // Wipe DOM rapidly via String injection
-        
+
         for (let r = 0; r < gridSize; r++) {
             for (let c = 0; c < gridSize; c++) {
                 const cell = document.createElement('div');
                 cell.className = 'grid-cell';
                 cell.dataset.r = r;
                 cell.dataset.c = c;
-                
+
                 // Set default classes based on JSON tracker arrays
                 if (r === startState[0] && c === startState[1]) {
                     cell.classList.add('start-node');
@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (obstacleStates.has(`${r},${c}`)) {
                     cell.classList.add('obstacle-node');
                 }
-                
+
                 gridContainer.appendChild(cell);
             }
         }
@@ -187,10 +187,10 @@ document.addEventListener('DOMContentLoaded', () => {
             cell.classList.remove('goal-node', 'obstacle-node');
             cell.classList.add('start-node');
             cell.innerHTML = 'S';
-            
+
             // Fail safes for state overlap
             if (r === goalState[0] && c === goalState[1]) goalState = [-1, -1];
-            
+
         } else if (currentTool === 'goal') {
             const prevGoal = document.querySelector('.goal-node');
             if (prevGoal) {
@@ -202,9 +202,9 @@ document.addEventListener('DOMContentLoaded', () => {
             cell.classList.remove('start-node', 'obstacle-node');
             cell.classList.add('goal-node');
             cell.innerHTML = 'G';
-            
+
             if (r === startState[0] && c === startState[1]) startState = [-1, -1];
-            
+
         } else if (currentTool === 'obstacle') {
             // Deny overwriting exact core nodes during swipe
             if ((r === startState[0] && c === startState[1]) || (r === goalState[0] && c === goalState[1])) {
@@ -225,7 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderHeatmap(valuesMatrix, policyMatrix = null) {
         let vMin = Infinity;
         let vMax = -Infinity;
-        
+
         // Scan for mathematical limits
         for (let r = 0; r < gridSize; r++) {
             for (let c = 0; c < gridSize; c++) {
@@ -251,12 +251,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const val = valuesMatrix[r][c];
                 // Strict 0.0 -> 1.0 normalization sequence
                 const normalized = (val - vMin) / (vMax - vMin);
-                
+
                 // Color mapping logic: Constant Oceanic Blue (Hue 210), Saturation 80%
                 // Negative (Low) vals = Deep Black/Blue (Lightness 15%)
                 // Positive (High) vals = Bright Glass White (Lightness 90%)
                 const lightness = 15 + (normalized * 75);
-                
+
                 // Prevent over-writing structural high-contrast Start/Goal indicators
                 if (!cell.classList.contains('start-node') && !cell.classList.contains('goal-node')) {
                     cell.style.backgroundColor = `hsl(210, 80%, ${lightness}%)`;
@@ -266,14 +266,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Append Mathematical overlays
                 let contentHTML = '';
-                
+
                 if (policyMatrix && policyMatrix[r][c]) {
-                     contentHTML = `<div class="policy-arrow">${policyMatrix[r][c]}</div>`;
+                    contentHTML = `<div class="policy-arrow">${policyMatrix[r][c]}</div>`;
                 } else {
-                     if (r === startState[0] && c === startState[1]) contentHTML = 'S';
-                     else if (r === goalState[0] && c === goalState[1]) contentHTML = 'G';
+                    if (r === startState[0] && c === startState[1]) contentHTML = 'S';
+                    else if (r === goalState[0] && c === goalState[1]) contentHTML = 'G';
                 }
-                
+
                 // Directly mutate DOM with both vector data and scalar state limits
                 cell.innerHTML = contentHTML + `<div class="value-text">${val.toFixed(2)}</div>`;
             }
@@ -281,6 +281,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateStatus(msg) {
-        statusText.textContent = `Status: ${msg}`;
+        statusText.textContent = `狀態: ${msg}`;
     }
 });
