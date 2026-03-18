@@ -1,6 +1,69 @@
-# GridWorld 專案開發對話與關鍵技術紀錄 (Q&A Log)
+**User:**
+作業內容
 
-> 這份紀錄還原了建構「強化學習 GridWorld 視覺化平台」過程中的對話細節與關鍵討論點，包含了初始架構設計的 Prompt 以及後續的技術修正探討。
+HW1-1: 網格地圖開發
+目標：開發一個大小為 nxn 的網格地圖，允許用戶指定維度 'n'（範圍從 5 到9），使用 Flask 網頁應用程式。
+功能要求：
+用戶可以透過滑鼠點擊指定起始單元格（點擊後顯示為綠色）和結束單元格（點擊後顯示為紅色）。
+用戶可以設定 n-2 個障礙物，透過滑鼠點擊將這些單元格變為灰色。
+HW1-2: 策略顯示與價值評估
+目標：顯示每個單元格的隨機生成行動（上下左右箭頭）作為策略。
+功能要求：使用策略評估推導出每個狀態的價值 V(s)。
+幫我依照以上需求產生給ANTIGRAVITY的最佳PROMPT
+
+**Assistant:**
+# Role & Context
+你現在是一位資深全端工程師（精通 Python Flask, JavaScript, HTML/CSS）同時也是一位強化學習（Reinforcement Learning）專家。
+請幫我開發一個包含「網格地圖互動」與「強化學習策略評估」的 Web 應用程式。這是一份作業，必須兼顧程式碼品質、視覺美感與演算法的正確性。
+
+# Requirements Overview
+本專案分為兩個主要部分（HW1-1 與 HW1-2），請使用 Python Flask 作為後端，前端使用 HTML/CSS/JS 實作。
+
+## HW1-1: 網格地圖開發 (Grid Map Development)
+1. **地圖生成**：在前端提供一個輸入框，允許用戶輸入維度 `n`（範圍限制在 5 到 9 之間）。點擊生成按鈕後，利用 Flask 渲染出一個 $n \times n$ 的網格地圖。
+2. **互動點擊設定**：
+   - 用戶第一次點擊網格：設定為「起始單元格」（Start State），背景變為綠色。
+   - 用戶第二次點擊網格：設定為「結束單元格」（Terminal State），背景變為紅色。
+   - 後續點擊網格：設定為「障礙物」（Obstacles），背景變為灰色。
+3. **限制條件**：障礙物的數量最多只能有 `n-2` 個。前端需要有邏輯卡控，超過數量時跳出友善的提示。
+
+## HW1-2: 策略顯示與價值評估 (Policy & Value Iteration)
+1. **隨機策略生成 (Policy Matrix)**：
+   - 在後端為每一個非障礙物、非終點的格子，隨機生成一個行動策略（上、下、左、右）。
+   - 前端需視覺化這個策略矩陣，在對應的網格中畫出對應方向的「箭頭」（如：↑, ↓, ←, →）。
+   - 障礙物格子請維持灰色且無箭頭。
+2. **策略評估 (Policy Evaluation)**：
+   - 在 Flask 後端實作「策略評估演算法 (Policy Evaluation)」來計算每個狀態的價值 $V(s)$。
+   - 請預設合理的強化學習環境參數：例如 Discount factor (gamma) = 0.9，到達終點 Reward = +1（或自訂合理的終點獎勵），撞牆或撞障礙物則留在原地並給予 step penalty（例如 Reward = -0.04）。
+   - 執行迭代直到 $V(s)$ 收斂。
+3. **價值矩陣顯示 (Value Matrix)**：
+   - 在前端顯示計算完成的 $V(s)$ 矩陣。每個網格內顯示該狀態的價值（取小數點後兩位）。
+   - 畫面排版建議：將「Policy Matrix（箭頭）」與「Value Matrix（數字）」並排顯示或提供頁籤切換，方便對照。
+
+## UI/UX 美化要求 (Design & Aesthetics)
+- 請不要使用純 HTML 的陽春樣式。請引入 Bootstrap 或 Tailwind CSS 來優化版面。
+- 網格需有適當的陰影、圓角、懸停效果 (Hover effects)。
+- 色彩計畫要現代化（例如：柔和的綠色代表起點、具警示感但不刺眼的紅色代表終點、高質感的深灰色代表障礙物）。
+- 介面需要直覺流暢，提供清晰的操作步驟提示（例如：「步驟 1：請點擊設定起點」、「步驟 2：請設定終點」...）。
+
+## 程式碼架構與註解 (Code Quality)
+- 遵循 MVC 或良好的前後端分離架構。Flask 負責 API 與演算法，JS 負責畫面渲染與互動。
+- 程式碼必須包含詳細的中文註解，特別是在 Policy Evaluation 的貝爾曼方程式 (Bellman Equation) 實作段落，因為這佔了評分標準很大的比例。
+
+## 部署指導 (Deployment to GitHub & Cloud)
+- 因為本專案使用 Flask (包含後端)，無法直接部署在 GitHub Pages。
+- 請幫我準備好 `requirements.txt` 和 `Procfile`，並提供一份詳細的 Step-by-Step 中文教學：
+  1. 如何將程式碼推上 GitHub。
+  2. 如何將 GitHub Repo 連結到免費的雲端平台（例如 Render 或 PythonAnywhere）進行一鍵自動部署。
+  3. 確保最終能產生一個公開網址供他人測試使用。
+
+# Output Format
+請依序提供：
+1. 目錄結構規劃。
+2. 後端 Python/Flask 程式碼 (`app.py`, 強化學習演算法模組)。
+3. 前端 HTML/CSS/JS 程式碼 (`templates/index.html`, `static/style.css`, `static/script.js`)。
+4. 依賴清單 `requirements.txt`。
+5. 完整的 GitHub 與 Render (或其他免費平台) 部署步驟教學。
 
 ---
 
